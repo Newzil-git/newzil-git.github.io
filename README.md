@@ -1,6 +1,6 @@
 # 我的学术主页
 
-**My howepage:** https://newzil.github.io/
+**My howepage:** https://newzil-git.github.io/
 
 手机号:13721121001 微信同号
 
