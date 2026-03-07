@@ -185,11 +185,12 @@ Contact: +86 13721121001 (WeChat)</p>
 </div>
 
 <div class="visitor-map-section">
-<h2>🌍 Visitor Map</h2>
-<p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">Welcome visitors from around the world! Circle size represents visit frequency from each region</p>
+<h2>Visitor Map</h2>
+<p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Welcome visitors from around the world! Circle size represents visit frequency from each region</p>
+<p id="visitor-stats" style="color: #4CAF50; font-size: 0.9em; margin-bottom: 15px;">Loading...</p>
 <div id="visitor-map" style="height: 400px; width: 100%; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
 <p style="color: #888; font-size: 0.8em; text-align: center; margin-top: 10px;">
-Data updates may be delayed | Powered by IP-API & Leaflet
+Powered by Supabase & Leaflet | Location precision reduced for privacy protection
 </p>
 </div>
 
@@ -197,118 +198,206 @@ Data updates may be delayed | Powered by IP-API & Leaflet
 </tr>
 </table>
 
-<!-- 访客地图相关脚本 -->
+<!-- Visitor Map Scripts -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// 访客地图功能
+// Visitor Map Function - Using Supabase Cloud Database
 (function() {
-    // 初始化地图
-    const map = L.map('visitor-map').setView([39.9042, 116.4074], 2); // 以北京为中心
-    
-    // 添加地图瓦片层
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-    
-    // 存储访客位置的键
-    const STORAGE_KEY = 'visitor_locations';
-    
-    // 获取当前访客位置
-    function getCurrentVisitorLocation() {
-        fetch('https://ip-api.com/json/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const location = {
-                        lat: data.lat,
-                        lon: data.lon,
-                        city: data.city,
-                        country: data.country,
-                        region: data.regionName,
-                        timestamp: Date.now()
-                    };
-                    
-                    // 记录访客位置
-                    recordVisitorLocation(location);
-                    
-                    // 显示所有访客位置
-                    displayVisitorLocations();
-                }
-            })
-            .catch(error => {
-                console.log('Unable to get location info:', error);
-                // 显示已有的访客位置
-                displayVisitorLocations();
-            });
-    }
-    
-    // 记录访客位置
-    function recordVisitorLocation(location) {
-        let locations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        
-        // 检查是否已有相同位置的访客
-        const existingIndex = locations.findIndex(loc => 
-            Math.abs(loc.lat - location.lat) < 0.1 && 
-            Math.abs(loc.lon - location.lon) < 0.1
-        );
-        
-        if (existingIndex !== -1) {
-            // 增加访问次数
-            locations[existingIndex].count = (locations[existingIndex].count || 1) + 1;
-            locations[existingIndex].lastVisit = location.timestamp;
+    // Supabase Configuration
+    const SUPABASE_URL = 'https://svloburjgdwfbrlqftu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2bG9idXJqZ2R3ZmJybHFmdHUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3Mjg2Mjc0MCwiZXhwIjoyMDg4NDM4NzQwfQ.cwjCs3AwtMI0ifX14FbQAOB5UECMCLygeyoxBgBolho';
+
+    // Initialize Supabase client
+    let supabase = null;
+    let useLocalStorage = false;
+
+    try {
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } else {
-            // 新位置
-            location.count = 1;
-            locations.push(location);
+            console.log('Supabase not configured, using local storage mode');
+            useLocalStorage = true;
         }
-        
-        // 限制存储的位置数量（最多50个）
-        if (locations.length > 50) {
-            locations = locations.sort((a, b) => b.count - a.count).slice(0, 50);
-        }
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+    } catch (e) {
+        console.log('Supabase initialization failed, using local storage mode');
+        useLocalStorage = true;
     }
-    
-    // 显示访客位置
-    function displayVisitorLocations() {
-        const locations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        
-        locations.forEach(location => {
-            const count = location.count || 1;
-            const radius = Math.min(5 + count * 3, 25); // 根据访问次数调整圆圈大小
-            
-            // 创建圆圈标记
-            const circle = L.circle([location.lat, location.lon], {
-                color: '#007bff',
-                fillColor: '#007bff',
-                fillOpacity: 0.3 + Math.min(count * 0.1, 0.5),
-                radius: radius * 1000 // 转换为米
-            }).addTo(map);
-            
-            // 添加弹出信息
-            const popupContent = `
-                <div style="text-align: center;">
-                    <strong>${location.city || 'Unknown City'}</strong><br>
-                    ${location.region || ''} ${location.country || ''}<br>
-                    <small>Visits: ${count}</small>
-                </div>
-            `;
-            circle.bindPopup(popupContent);
-        });
-        
-        // 如果有访客数据，调整地图视野
-        if (locations.length > 0) {
-            const group = new L.featureGroup(map._layers);
-            if (Object.keys(group._layers).length > 0) {
-                map.fitBounds(group.getBounds().pad(0.1));
+
+    // Initialize map
+    const map = L.map('visitor-map').setView([35.8617, 104.1954], 3);
+
+    // Add map tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(map);
+
+    const STORAGE_KEY = 'visitor_locations';
+    let markers = [];
+
+    // Get current visitor location
+    async function getCurrentVisitorLocation() {
+        try {
+            const response = await fetch('https://ip-api.com/json/');
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                const location = {
+                    lat: parseFloat(data.lat.toFixed(2)),
+                    lon: parseFloat(data.lon.toFixed(2)),
+                    city: data.city,
+                    country: data.country,
+                    region: data.regionName
+                };
+
+                await recordVisitorLocation(location);
+            }
+        } catch (error) {
+            console.log('Unable to get location info:', error);
+        }
+
+        await displayVisitorLocations();
+    }
+
+    // Record visitor location
+    async function recordVisitorLocation(location) {
+        if (useLocalStorage) {
+            let locations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            const existingIndex = locations.findIndex(loc =>
+                Math.abs(loc.lat - location.lat) < 0.05 &&
+                Math.abs(loc.lon - location.lon) < 0.05
+            );
+
+            if (existingIndex !== -1) {
+                locations[existingIndex].visit_count = (locations[existingIndex].visit_count || 1) + 1;
+                locations[existingIndex].last_visit = new Date().toISOString();
+            } else {
+                locations.push({
+                    ...location,
+                    visit_count: 1,
+                    first_visit: new Date().toISOString(),
+                    last_visit: new Date().toISOString()
+                });
+            }
+
+            if (locations.length > 100) {
+                locations = locations.sort((a, b) => b.visit_count - a.visit_count).slice(0, 100);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+        } else {
+            try {
+                const { data: existing, error: selectError } = await supabase
+                    .from('visitor_locations')
+                    .select('*')
+                    .eq('lat', location.lat)
+                    .eq('lon', location.lon)
+                    .single();
+
+                if (existing) {
+                    await supabase
+                        .from('visitor_locations')
+                        .update({
+                            visit_count: existing.visit_count + 1,
+                            last_visit: new Date().toISOString()
+                        })
+                        .eq('id', existing.id);
+                } else {
+                    await supabase
+                        .from('visitor_locations')
+                        .insert([{
+                            lat: location.lat,
+                            lon: location.lon,
+                            city: location.city,
+                            country: location.country,
+                            region: location.region,
+                            visit_count: 1
+                        }]);
+                }
+            } catch (error) {
+                console.log('Supabase write failed:', error);
             }
         }
     }
-    
-    // 页面加载完成后获取位置
+
+    // Display visitor locations
+    async function displayVisitorLocations() {
+        let locations = [];
+
+        if (useLocalStorage) {
+            locations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } else {
+            try {
+                const { data, error } = await supabase
+                    .from('visitor_locations')
+                    .select('*')
+                    .order('visit_count', { ascending: false })
+                    .limit(200);
+
+                if (error) throw error;
+                locations = data || [];
+            } catch (error) {
+                console.log('Supabase read failed, using local cache:', error);
+                locations = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            }
+        }
+
+        // Clear existing markers
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        // Calculate total visits
+        let totalVisits = 0;
+
+        locations.forEach(location => {
+            const count = location.visit_count || 1;
+            totalVisits += count;
+            const radius = Math.min(8 + count * 2, 35);
+
+            const circle = L.circleMarker([location.lat, location.lon], {
+                color: '#fff',
+                weight: 2,
+                fillColor: '#4CAF50',
+                fillOpacity: 0.6 + Math.min(count * 0.05, 0.3),
+                radius: radius
+            }).addTo(map);
+
+            const popupContent = `
+                <div style="text-align: center; min-width: 120px;">
+                    <strong style="font-size: 14px;">${location.city || 'Unknown City'}</strong><br>
+                    <span style="color: #666;">${location.region || ''} ${location.country || ''}</span><br>
+                    <span style="color: #4CAF50; font-weight: bold;">Visits: ${count}</span>
+                </div>
+            `;
+            circle.bindPopup(popupContent);
+
+            circle.on('mouseover', function() {
+                this.setStyle({ fillOpacity: 0.9, weight: 3 });
+            });
+            circle.on('mouseout', function() {
+                this.setStyle({ fillOpacity: 0.6 + Math.min(count * 0.05, 0.3), weight: 2 });
+            });
+
+            markers.push(circle);
+        });
+
+        // Update statistics
+        const statsDiv = document.getElementById('visitor-stats');
+        if (statsDiv) {
+            statsDiv.innerHTML = `Total Locations: <strong>${locations.length}</strong> | Total Visits: <strong>${totalVisits}</strong>`;
+        }
+
+        // Adjust map view
+        if (markers.length > 0) {
+            const group = L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
+
+    // Load on page ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', getCurrentVisitorLocation);
     } else {
