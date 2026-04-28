@@ -3,7 +3,6 @@
 ## 个人信息
 
 * **邮箱**: ziyannn@yeah.net
-* **联系方式**: 13721121001 (微信同号)
 * **籍贯**: 安徽-合肥
 * **所在地**: 苏州大学未来科学与工程学院 (江苏-苏州), 清华大学钱学森班&零一学院联合培养项目 (广东-深圳)
 
@@ -13,7 +12,7 @@
 
 ## 个人简介
 
-我是一名苏州大学统计学专业的本科生，同时也是清华大学钱学森班&零一学院联合培养项目的学员。我的研究兴趣主要集中在人工智能和多模态情感分析领域，特别关注AI技术在社会创新方面的应用。在学术研究方面，我已在CCF-A/B类会议发表论文，并获得多项专利。此外，我积极参与各类数学建模竞赛，致力于将理论知识与实践相结合。
+我是一名苏州大学统计学专业的本科生，同时也是清华大学钱学森班&零一学院联合培养项目的学员。我的研究兴趣主要集中在多模态学习、强化学习与自我改进智能体系统，近期关注自指迭代优化、智能体协同进化以及面向真实反馈的评测与搜索框架。在学术研究方面，我已在CCF-A/B类会议发表论文，公开自指优化方向的 arXiv 预印本，并获得多项专利。此外，我积极参与数学建模、程序设计和AI应用项目，致力于将理论方法与可运行系统相结合。
 
 ## 教育经历
 
@@ -21,17 +20,17 @@
 
 **苏州大学未来科学与工程学院** 统计学专业, 2022.09-2026.06
 
-* GPA: 3.72/4.0, 88/100, 专业核心课程绩点: 3.88/4.0, 专业前20%
+* GPA: 3.8/4.0, 90/100, 排名: 3/65, 专业前5%
 * 主要课程：数学分析，高等代数，应用多元分析，概率论与数理统计，Python编程，数学建模与软件
 * 英语水平：CET-6
 
 ### 联培
 
-**清华大学钱学森班-零一学院**, 2024.06-2027.06
+**清华大学钱学森班-零一学院**, 2024.09-2026.09
 
-* 研究方向：社会创新 + AI
+* 研究方向：Artificial Intelligence
 * 主要课程：ESRT, ORIC, SURF (参见[钱班阶梯式培养方案](https://www.x-institute.edu.cn/accompany))
-* 导师：汤敏（国务院原参事），左小蕾（银河证券首席顾问）
+* 导师：汤敏（国务院原参事），杨柳（新加坡国立大学助理教授）
 
 ## 研究项目
 
@@ -53,6 +52,12 @@
 * 项目内容：开发支持文本和语音交互的智能代理，实现任务自动化和多模态内容生成
 * 技术实现：参与开发微信聊天机器人"Giiso_Wechat"，整合多种API实现智能交互
 
+### 深圳零一学院 创生pi项目：自指迭代智能体（项目核心成员，2025.08 - 至今）
+
+* 项目内容：探索基于自指迭代与协同进化机制的新型智能体系统范式，提升智能体系统的通用性、自适应性和可扩展性
+* 技术贡献：在 AlphaEvolve 启发的进化框架基础上引入自指进化机制，使系统能够在任务求解与优化器改进之间形成闭环
+* 阶段成果：相关论文已作为 arXiv 预印本公开
+
 ### 大学生创新创业项目：心芯相依-针对留守儿童的安全型情感陪伴智能系统（项目负责人，2024.06-2024.12）
 
 * 项目简介：开发基于AI的个性化情感支持和心理咨询系统，为留守儿童提供情感陪伴
@@ -60,11 +65,12 @@
 
 ## 论文
 
-1. ICME 2025（Oral）: "FSRF: Factorization-guided Semantic Recovery for Incomplete Multimodal Sentiment Analysis" (CCF-B，第一作者) ([点击此处查看](phb/ICME_2025_FSRF__Factorization_guided_Semantic_Recovery_for_Incomplete_Multimodal_Sentiment_Analysis.pdf))
-2. CVPR 2025: "MCCD: Multi-Agent Collaboration-based Compositional Diffusion for Complex Text-to-Image Generation" (CCF-A，第二作者)
-3. ICML 2025（Workshop）: "MERIT:Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation" (CCF-A,通讯作者) ([点击此处查看](phb/MERIT：Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation.pdf))
-4. Pattern Recognition: "Hierarchical Factorization-Guided Self-Distillation for Incomplete Multimodal Sentiment Analysis" (JCR Q1，第一作者，在审)
-5. ICIRDC 2024: "Establishment and solution of a multi-stage decision model based on hypothesis testing and dynamic programming algorithm" (EI,第一作者)([点击此处查看](phb/Establishment and Solution of a Multi-Stage Decision Model Based on Hypothesis Testing and Dynamic Programming Algorithm.pdf))
+1. arXiv 2026: "Escher-Loop: Mutual Evolution by Closed-Loop Self-Referential Optimization" (第一作者) ([点击此处查看](https://arxiv.org/abs/2604.23472))
+2. ICME 2025（Oral）: "FSRF: Factorization-guided Semantic Recovery for Incomplete Multimodal Sentiment Analysis" (CCF-B，第一作者) ([点击此处查看](phb/ICME_2025_FSRF__Factorization_guided_Semantic_Recovery_for_Incomplete_Multimodal_Sentiment_Analysis.pdf))
+3. CVPR 2025: "MCCD: Multi-Agent Collaboration-based Compositional Diffusion for Complex Text-to-Image Generation" (CCF-A，第二作者)
+4. ICML 2025（Workshop）: "MERIT:Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation" (CCF-A,通讯作者) ([点击此处查看](phb/MERIT：Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation.pdf))
+5. Pattern Recognition: "Hierarchical Factorization-Guided Self-Distillation for Incomplete Multimodal Sentiment Analysis" (JCR Q1，第一作者，在审)
+6. ICIRDC 2024: "Establishment and solution of a multi-stage decision model based on hypothesis testing and dynamic programming algorithm" (EI,第一作者)([点击此处查看](phb/Establishment and Solution of a Multi-Stage Decision Model Based on Hypothesis Testing and Dynamic Programming Algorithm.pdf))
 
 ## 专利
 
