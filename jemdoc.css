@@ -298,6 +298,11 @@ a:hover {
     transform: translateX(2px);
 }
 
+.open-source-item {
+    border-left-color: #6f42c1;
+    background: #fbf9ff;
+}
+
 /* Institution info */
 .institution-info {
     background: #f8f9fa;
