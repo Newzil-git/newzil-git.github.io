@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escher-Loop - Self-Referential Evolution</title>
+  <meta name="description" content="A bilingual research blog for Escher-Loop, a closed-loop framework where task agents and optimizer agents mutually evolve.">
+  <meta property="og:title" content="Escher-Loop">
+  <meta property="og:description" content="Task ability and optimization ability emerge together.">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="assets/final-paper-figures/fig1-framework.png">
+  <link rel="icon" type="image/png" href="assets/site/favicon.png">
+  <link rel="apple-touch-icon" href="assets/site/apple-touch-icon.png">
+  <style>
+    :root {
+      --paper: #f5f7fb;
+      --paper2: #ffffff;
+      --ink: #101114;
+      --muted: #5e6673;
+      --line: rgba(16, 17, 20, .16);
+      --deep: #121826;
+      --cobalt: #2458d8;
+      --coral: #f05d44;
+      --mint: #20a374;
+      --gold: #c7952f;
+      --sky: #50a7c2;
+      --max: 1200px;
+      --article: 780px;
+      --shadow: 0 24px 70px rgba(32, 28, 18, .14);
+      color-scheme: light;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); letter-spacing: 0; }
+    body[data-lang="zh"] [data-lang-en], body[data-lang="en"] [data-lang-zh] { display: none !important; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font: inherit; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 66px;
+      padding: 0 clamp(18px, 4vw, 54px);
+      background: rgba(244, 247, 251, .9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 840; }
+    .brand-mark {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: rgba(255, 250, 240, .72);
+    }
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+      transform: rotate(-28deg);
+    }
+    .brand-mark::after {
+      color: var(--coral);
+      transform: rotate(152deg);
+    }
+    .brand-mark::before {
+      color: var(--cobalt);
+    }
+
+    .nav-links { display: flex; gap: 26px; color: var(--muted); font-size: 14px; font-weight: 680; }
+    .lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.55); }
+    .lang button { border: 0; border-radius: 999px; padding: 6px 10px; background: transparent; cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 820; }
+    body[data-lang="en"] .lang button[data-set-lang="en"], body[data-lang="zh"] .lang button[data-set-lang="zh"] { background: var(--ink); color: #fff; }
+
+    h1, h2, h3, p { margin: 0; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 600px;
+      padding: clamp(42px, 5vw, 60px) clamp(18px, 4vw, 54px) clamp(64px, 6vw, 86px);
+      background:
+        linear-gradient(90deg, rgba(16,17,20,.035) 1px, transparent 1px) 0 0/88px 88px,
+        linear-gradient(0deg, rgba(16,17,20,.03) 1px, transparent 1px) 0 0/88px 88px,
+        linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 118px;
+      background:
+        linear-gradient(90deg, rgba(36,88,216,.12), rgba(32,163,116,.1), rgba(240,93,68,.1)),
+        linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,0));
+      opacity: .88;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 140px;
+      background: linear-gradient(180deg, transparent 0%, var(--paper) 88%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+      gap: clamp(56px, 7vw, 96px);
+      align-items: start;
+    }
+
+    .label-row { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 58px; }
+    .tag {
+      display: inline-flex; align-items: center; min-height: 28px; padding: 5px 10px;
+      border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.55);
+      color: #55524b; font-size: 12px; font-weight: 780; text-transform: uppercase;
+    }
+
+    h1 { font-size: clamp(64px, 7.4vw, 96px); line-height: .9; font-weight: 900; max-width: 820px; white-space: nowrap; }
+    .subtitle { margin-top: 24px; max-width: 740px; font-size: clamp(24px, 2.6vw, 36px); line-height: 1.08; font-weight: 780; }
+    .hero-copy { margin-top: 22px; max-width: 660px; color: var(--muted); font-size: 17px; line-height: 1.68; }
+    .hero-meta { margin-top: 26px; display: grid; gap: 6px; color: #4b5360; font-size: 13px; line-height: 1.42; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 17px;
+      border-radius: 8px; border: 1px solid var(--ink); background: var(--ink); color: #fff; font-size: 14px; font-weight: 820;
+    }
+    .btn.secondary { background: transparent; color: var(--ink); }
+
+    .hero-thesis {
+      position: relative;
+      padding: 0 0 0 26px;
+    }
+    .hero-thesis::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 58px;
+      bottom: 0;
+      width: 3px;
+      background: var(--ink);
+    }
+    .claim-label {
+      display: inline-block;
+      margin-bottom: 70px;
+      color: var(--cobalt);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .hero-thesis h2 {
+      margin: 0;
+      font-size: clamp(28px, 3.1vw, 40px);
+      line-height: 1.04;
+      font-weight: 900;
+    }
+    .hero-thesis p {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .claim-equation {
+      margin-top: 28px;
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+    .claim-equation div {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .claim-equation b {
+      color: var(--coral);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .claim-equation span {
+      color: #242934;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .instrument {
+      position: relative;
+      min-height: 560px;
+      border-radius: 8px;
+      background: var(--deep);
+      color: #fff;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .hero .instrument { display: none; }
+
+    .instrument::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px) 0 0/44px 44px,
+        linear-gradient(0deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/44px 44px,
+        linear-gradient(135deg, rgba(36,88,216,.18), rgba(32,163,116,.14) 48%, rgba(240,93,68,.16));
+      opacity: .9;
+    }
+
+    .instrument-head {
+      position: relative;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 22px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 780;
+      letter-spacing: .08em;
+    }
+
+    .loop-orbit { position: absolute; inset: 80px 42px 130px; }
+    .orbit-svg { width: 100%; height: 100%; overflow: visible; }
+    .orbit { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 1.2; }
+    .orbit.pulse { stroke: url(#orbitGradient); stroke-width: 3; stroke-dasharray: 90 620; animation: orbitMove 5s linear infinite; filter: drop-shadow(0 0 12px rgba(80,167,194,.45)); }
+    @keyframes orbitMove { to { stroke-dashoffset: -710; } }
+
+    .node-chip {
+      position: absolute;
+      min-width: 170px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(12px);
+    }
+    .node-chip b { display: block; font-size: 15px; }
+    .node-chip span { display: block; margin-top: 5px; color: rgba(255,255,255,.58); font-size: 12px; line-height: 1.35; }
+    .node-chip.task { left: 34px; top: 110px; }
+    .node-chip.opt { right: 34px; top: 110px; }
+    .node-chip.score { left: 50%; bottom: 158px; transform: translateX(-50%); text-align: center; }
+
+    .instrument-stats {
+      position: absolute; left: 24px; right: 24px; bottom: 24px;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,.07);
+    }
+    .instrument-stats div { padding: 18px; border-right: 1px solid rgba(255,255,255,.14); }
+    .instrument-stats div:last-child { border-right: 0; }
+    .instrument-stats b { display: block; font-size: 32px; line-height: 1; }
+    .instrument-stats span { display: block; margin-top: 7px; color: rgba(255,255,255,.58); font-size: 12px; }
+
+    .thesis-strip {
+      width: min(var(--max), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      background: var(--paper2);
+      box-shadow: 0 14px 34px rgba(32,28,18,.055);
+    }
+    .thesis-item { padding: 24px 22px 26px; border-right: 1px solid var(--line); }
+    .thesis-item:last-child { border-right: 0; }
+    .thesis-item small { color: var(--coral); font-size: 12px; font-weight: 900; text-transform: uppercase; }
+    .thesis-item h3 { margin-top: 18px; font-size: 21px; line-height: 1.12; }
+    .thesis-item p { margin-top: 13px; color: var(--muted); font-size: 14px; line-height: 1.58; }
+
+    .section { width: min(var(--max), calc(100% - 36px)); margin: 0 auto; padding: clamp(78px, 8vw, 112px) 0; }
+    .section + .section { border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 52px; align-items: start; margin-bottom: 44px; }
+    .kicker { color: var(--cobalt); font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .section h2 { max-width: 880px; font-size: clamp(34px, 4vw, 52px); line-height: 1.05; font-weight: 900; text-wrap: balance; }
+    .lead { max-width: 760px; margin-top: 18px; font-size: clamp(17px, 1.8vw, 22px); line-height: 1.48; color: #2b2a27; font-weight: 650; }
+    .body-text { max-width: var(--article); margin-left: 242px; color: #24231f; font-size: 17px; line-height: 1.78; }
+    .body-text p + p { margin-top: 20px; }
+    .statement { margin-top: 28px; padding-left: 22px; border-left: 3px solid var(--coral); color: var(--coral); font-size: clamp(21px, 2.2vw, 29px); line-height: 1.24; font-weight: 820; }
+
+    .definition-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 32px;
+    }
+    .definition-card {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 24px 24px 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.84);
+      box-shadow: 0 14px 34px rgba(32,28,18,.055);
+    }
+    .definition-card.wide {
+      grid-column: 1 / -1;
+    }
+    .definition-card small {
+      display: block;
+      color: var(--cobalt);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .definition-card h3 {
+      font-size: 22px;
+      line-height: 1.12;
+      margin-bottom: 12px;
+    }
+    .definition-card p {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.58;
+    }
+    .equation {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(16,17,20,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.62);
+      color: var(--ink);
+      overflow-x: auto;
+    }
+    .definition-grid > .definition-card:not(.wide) .equation { margin-top: auto; }
+    .equation mjx-container { max-width: 100%; }
+
+    .mechanism-layout { display: grid; grid-template-columns: 1fr; gap: 22px; }
+    .phase-rail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start; }
+    .phase {
+      display: grid; grid-template-columns: 42px 1fr; gap: 14px; align-items: center;
+      width: 100%; min-height: 112px; padding: 16px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(255,255,255,.72); text-align: left; cursor: pointer;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .phase:hover { transform: translateY(-1px); }
+    .phase i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #eef2f7; color: var(--ink); font-style: normal; font-weight: 900; }
+    .phase b { display: block; font-size: 16px; }
+    .phase span span { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .phase.is-active { border-color: rgba(36,88,216,.45); background: #fff; box-shadow: 0 14px 34px rgba(36,88,216,.1); }
+    .phase.is-active i { background: var(--cobalt); color: #fff; }
+
+    .mechanism-stage {
+      position: relative;
+      min-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(16,17,20,.06) 1px, transparent 1px) 0 0/58px 58px,
+        linear-gradient(0deg, rgba(16,17,20,.05) 1px, transparent 1px) 0 0/58px 58px,
+        #fff;
+      box-shadow: 0 18px 60px rgba(32,28,18,.09);
+    }
+    .stage-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .stage-path { fill: none; stroke: rgba(16,17,20,.18); stroke-width: 2; }
+    .stage-path.active { stroke: var(--cobalt); stroke-width: 4; stroke-dasharray: 80 520; animation: orbitMove 4.8s linear infinite; }
+    .pop {
+      position: absolute; width: 230px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.9); box-shadow: 0 16px 34px rgba(32,28,18,.08);
+    }
+    .pop.task { left: 34px; top: 44px; }
+    .pop.opt { right: 34px; top: 44px; }
+    .pop b { font-size: 16px; }
+    .pop small { display: block; margin-top: 5px; color: var(--muted); }
+    .dots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 14px; }
+    .dots i { height: 9px; border-radius: 999px; background: #ded8c9; }
+    .dots i:nth-child(2), .dots i:nth-child(5), .dots i:nth-child(9) { background: var(--cobalt); }
+    .center-node { position: absolute; left: 50%; top: 212px; transform: translateX(-50%); width: 170px; min-height: 98px; display: grid; place-items: center; text-align: center; border-radius: 8px; background: var(--ink); color: #fff; box-shadow: var(--shadow); }
+    .center-node b { display: block; font-size: 18px; }
+    .center-node span { display: block; margin-top: 7px; color: rgba(255,255,255,.64); font-size: 12px; }
+    .algorithm-strip { position: absolute; left: 24px; right: 24px; bottom: 24px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: rgba(255,255,255,.94); }
+    .formula { padding: 16px; border-right: 1px solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .formula:last-child { border-right: 0; }
+    .formula.is-active { background: rgba(36,88,216,.1); color: var(--cobalt); }
+
+    .fig1-stage {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      width: min(1080px, 100%);
+      max-width: 1080px;
+      margin: 0 auto;
+      box-shadow: 0 18px 50px rgba(32,28,18,.075);
+      overflow: hidden;
+    }
+    .fig-image-shell {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(18px, 2.5vw, 28px);
+      background: #fff;
+    }
+    .fig-image-stack {
+      position: relative;
+      aspect-ratio: 1432 / 688;
+      width: 100%;
+    }
+    .fig-stage-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      filter: saturate(1.04) contrast(1.02);
+      transition: opacity .24s ease;
+      pointer-events: none;
+    }
+    .fig1-stage[data-phase="sample"] .fig-stage-frame.sample,
+    .fig1-stage[data-phase="score"] .fig-stage-frame.score,
+    .fig1-stage[data-phase="elo"] .fig-stage-frame.elo,
+    .fig1-stage[data-phase="self"] .fig-stage-frame.self {
+      opacity: 1;
+    }
+    .fig-explain {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 22px;
+      align-items: center;
+      padding: 20px 24px;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.88);
+    }
+    .fig-explain b {
+      color: var(--cobalt);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .fig-explain span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 680;
+    }
+
+    .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .metric { padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper2); box-shadow: 0 16px 40px rgba(32,28,18,.07); }
+    .metric small { color: var(--cobalt); font-size: 12px; font-weight: 900; text-transform: uppercase; }
+    .metric strong { display: block; margin-top: 18px; font-size: clamp(42px, 5vw, 64px); line-height: 1; }
+    .metric p { margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+    .figures { display: grid; gap: 26px; margin-top: 36px; }
+    .figure { border: 1px solid var(--line); background: rgba(255,250,240,.72); box-shadow: 0 18px 50px rgba(32,28,18,.08); }
+    .figure img { width: 100%; background: transparent; }
+    .result-figure { background: transparent; box-shadow: 0 18px 50px rgba(32,28,18,.055); }
+    .result-figure .caption { background: rgba(255,255,255,.74); }
+    .code-figure { width: min(840px, 100%); margin: 0 auto; }
+    .caption { display: flex; justify-content: space-between; gap: 20px; padding: 14px 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .caption span:first-child { max-width: 900px; }
+    .caption span:last-child { white-space: nowrap; }
+    .evidence-note {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 3px solid var(--cobalt);
+      background: rgba(255,255,255,.72);
+      color: #3f4754;
+      font-size: 15px;
+      line-height: 1.62;
+      font-weight: 650;
+    }
+
+    .evolution-copy { display: grid; gap: 24px; }
+    .feature-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature-list div {
+      min-height: 156px;
+      padding: 18px 18px 16px;
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--mint);
+      border-radius: 8px;
+      background: rgba(255,255,255,.84);
+      color: var(--muted);
+      line-height: 1.52;
+      box-shadow: 0 12px 30px rgba(32,28,18,.055);
+    }
+    .feature-list b { display: block; color: var(--ink); margin-bottom: 8px; font-size: 17px; line-height: 1.18; }
+
+    .author-grid { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); background: var(--paper2); }
+    .author { padding: 20px; border-right: 1px solid var(--line); min-height: 172px; }
+    .author:last-child { border-right: 0; }
+    .author b { display: block; font-size: 17px; }
+    .author span, .author a { display: block; margin-top: 10px; color: var(--muted); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+    footer { border-top: 1px solid var(--line); padding: 34px clamp(18px,4vw,54px); color: var(--muted); font-size: 13px; }
+    .footer-inner { width: min(var(--max), 100%); margin: 0 auto; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .footer-links { display: inline-flex; gap: 14px; flex-wrap: wrap; }
+    .footer-links a { color: var(--ink); font-weight: 760; text-decoration: underline; text-underline-offset: 3px; }
+
+    body[data-lang="zh"] {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
+      font-variant-east-asian: proportional-width;
+    }
+    body[data-lang="zh"] .tag { letter-spacing: .02em; }
+    body[data-lang="zh"] .subtitle {
+      max-width: 690px;
+      font-size: clamp(24px, 2.35vw, 33px);
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+    body[data-lang="zh"] .hero-copy {
+      max-width: 650px;
+      line-height: 1.78;
+    }
+    body[data-lang="zh"] .hero-thesis h2 {
+      font-size: clamp(28px, 3vw, 39px);
+      line-height: 1.14;
+      text-wrap: balance;
+    }
+    body[data-lang="zh"] .hero-thesis p { line-height: 1.78; }
+    body[data-lang="zh"] .section h2 {
+      max-width: 820px;
+      font-size: clamp(32px, 3.6vw, 48px);
+      line-height: 1.14;
+    }
+    body[data-lang="zh"] .lead {
+      max-width: 780px;
+      line-height: 1.7;
+      font-weight: 620;
+    }
+    body[data-lang="zh"] .definition-card h3,
+    body[data-lang="zh"] .thesis-item h3,
+    body[data-lang="zh"] .feature-list b {
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+    body[data-lang="zh"] .definition-card p,
+    body[data-lang="zh"] .feature-list div,
+    body[data-lang="zh"] .metric p,
+    body[data-lang="zh"] .body-text {
+      line-height: 1.72;
+    }
+    body[data-lang="zh"] .phase b { font-size: 15px; line-height: 1.22; }
+    body[data-lang="zh"] .phase span span { line-height: 1.45; }
+    body[data-lang="zh"] .caption span:first-child { max-width: 820px; }
+    body[data-lang="zh"] .evidence-note {
+      line-height: 1.76;
+      max-width: 980px;
+    }
+
+    @media (max-width: 980px) {
+      .nav-links { display: none; }
+      .hero-grid, .section-head, .mechanism-layout, .evolution-copy { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 56px; }
+      .hero-thesis { padding-left: 22px; transform: none; }
+      .hero-thesis::before { top: 0; }
+      .thesis-strip, .results-grid, .author-grid { grid-template-columns: 1fr; }
+      .thesis-item, .author { border-right: 0; border-bottom: 1px solid var(--line); }
+      .thesis-item:last-child, .author:last-child { border-bottom: 0; }
+      .body-text { margin-left: 0; }
+      .definition-grid { grid-template-columns: 1fr; }
+      .section-head { gap: 16px; }
+      .phase-rail { grid-template-columns: repeat(2, 1fr); }
+      .feature-list { grid-template-columns: 1fr; }
+      .fig-explain { grid-template-columns: 1fr; gap: 8px; }
+      .figure { overflow: hidden; }
+      .result-figure img, .result-figure .caption { width: 100%; max-width: none; }
+      .code-figure img, .code-figure .caption { width: 100%; max-width: 100%; }
+      .caption { display: block; }
+      .caption span:last-child { display: block; margin-top: 8px; white-space: normal; }
+    }
+
+    @media (max-width: 560px) {
+      .hero { width: 100%; }
+      h1 { font-size: clamp(60px, 19vw, 86px); white-space: normal; }
+      .subtitle { font-size: 22px; }
+      .hero-thesis h2 { font-size: 30px; }
+      .claim-equation div { grid-template-columns: 1fr; gap: 6px; }
+      .thesis-strip { margin-top: 0; width: 100%; border-left: 0; border-right: 0; }
+      .phase-rail { grid-template-columns: 1fr; }
+      .phase { min-height: auto; }
+      .fig-image-shell { padding: 12px; }
+      .fig-explain { padding: 16px; }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body data-lang="en">
+  <nav class="nav">
+    <a class="brand" href="#"><span class="brand-mark"></span><span>Escher-Loop</span></a>
+    <div class="nav-links">
+      <a href="#idea"><span data-lang-en>Idea</span><span data-lang-zh>思想</span></a>
+      <a href="#mechanism"><span data-lang-en>Mechanism</span><span data-lang-zh>机制</span></a>
+      <a href="#results"><span data-lang-en>Results</span><span data-lang-zh>结果</span></a>
+      <a href="#authors"><span data-lang-en>Authors</span><span data-lang-zh>作者</span></a>
+    </div>
+    <div class="lang"><button type="button" data-set-lang="en">EN</button><button type="button" data-set-lang="zh">中</button></div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="label-row">
+          <span class="tag" data-lang-en>Research preview</span><span class="tag" data-lang-zh>研究预览</span>
+          <span class="tag">April 26, 2026</span>
+          <span class="tag" data-lang-en>Closed-loop evolution</span><span class="tag" data-lang-zh>闭环演化</span>
+        </div>
+        <h1>Escher-Loop</h1>
+        <p class="subtitle" data-lang-en>Intelligence is the ability to improve task agents and the optimizers that improve them.</p>
+        <p class="subtitle" data-lang-zh>智能是同时改进任务解法与改进“优化器自身”的能力。</p>
+        <p class="hero-copy" data-lang-en>Escher-Loop turns optimization ability from a fixed human prior into an evolving population. Task feedback remains the only grounded signal: every task-agent score is reused to evaluate optimizer agents almost for free.</p>
+        <p class="hero-copy" data-lang-zh>Escher-Loop 把优化能力从固定的人类先验，变成一个可演化的优化器种群。系统仍然只依赖真实任务反馈：每一次任务智能体得分都会被复用来衡量优化器，几乎是 for free。</p>
+        <div class="hero-meta">
+          <span>Ziyang Liu, Xinyan Guo, Xuchen Wei, Han Hao, Liu Yang</span>
+          <span data-lang-en>Shenzhen X-Institute, Soochow University, HIT Shenzhen, Tsinghua University, NUS</span>
+          <span data-lang-zh>深圳零一学院、苏州大学、哈工大深圳、清华大学、新加坡国立大学</span>
+          <span data-lang-en>First-author contact: newzil1225@gmail.com</span>
+          <span data-lang-zh>第一作者邮箱：newzil1225@gmail.com</span>
+        </div>
+        <div class="actions">
+          <a class="btn" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-en>arXiv preprint</a>
+          <a class="btn" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-zh>arXiv 预印本</a>
+          <a class="btn secondary" href="https://github.com/scaling-group/escher-loop" target="_blank" rel="noopener" data-lang-en>Open source code</a>
+          <a class="btn secondary" href="https://github.com/scaling-group/escher-loop" target="_blank" rel="noopener" data-lang-zh>打开代码仓库</a>
+        </div>
+      </div>
+
+      <div class="hero-thesis">
+        <div class="claim-label" data-lang-en>Core claim</div>
+        <div class="claim-label" data-lang-zh>核心论点</div>
+        <h2 data-lang-en>Optimization ability is not optimized directly. It emerges from the loop.</h2>
+        <h2 data-lang-zh>优化能力不是直接目标，而是在闭环中涌现。</h2>
+        <p data-lang-en>Task agents receive absolute scores from execution. Optimizer agents receive relative scores by comparing the task agents they produce. The extra step is self-referential optimizer evolution; the measurement signal is already paid for by task evaluation.</p>
+        <p data-lang-zh>任务智能体通过执行获得绝对分数。优化器智能体通过比较它们生成的任务智能体获得相对分数。额外增加的是优化器自进化；衡量优化器的信号已经由任务评测天然提供。</p>
+        <div class="claim-equation">
+          <div><b data-lang-en>Define</b><b data-lang-zh>定义</b><span data-lang-en>intelligence as recursive improvement of solutions and optimizers</span><span data-lang-zh>智能是解法与优化器的递归改进能力</span></div>
+          <div><b data-lang-en>Measure</b><b data-lang-zh>衡量</b><span data-lang-en>optimizer quality through the task agents it generates</span><span data-lang-zh>通过优化器生成的任务智能体衡量优化能力</span></div>
+          <div><b data-lang-en>Reuse</b><b data-lang-zh>复用</b><span data-lang-en>task scores as optimizer win-loss signals without extra evaluator calls</span><span data-lang-zh>复用任务分数作为优化器胜负信号，无需额外评测器</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <aside class="thesis-strip" id="idea">
+    <article class="thesis-item"><small>Contribution 01</small><h3 data-lang-en>Define intelligence as recursive improvement</h3><h3 data-lang-zh>定义智能的本质</h3><p data-lang-en>Intelligence is not static task mastery; it is the ability to improve both the task solution and the optimizer that produces future solutions.</p><p data-lang-zh>智能不是对单一任务的静态掌握，而是同时改进任务解法与产生解法的优化器。</p></article>
+    <article class="thesis-item"><small>Contribution 02</small><h3 data-lang-en>Make optimization ability measurable</h3><h3 data-lang-zh>定义并衡量优化能力</h3><p data-lang-en>An optimizer is evaluated by the task agents it generates, then ranked by relative evidence over time.</p><p data-lang-zh>优化器由其生成的任务智能体来评估，并通过持续的相对证据排名。</p></article>
+    <article class="thesis-item"><small>Contribution 03</small><h3 data-lang-en>Get optimizer feedback almost for free</h3><h3 data-lang-zh>几乎免费的优化器反馈</h3><p data-lang-en>Task execution already yields scores; Escher-Loop reuses them as optimizer win-loss signals instead of adding a separate evaluator.</p><p data-lang-zh>任务执行天然产生分数；Escher-Loop 直接复用为优化器胜负信号，而不是额外构造评测器。</p></article>
+    <article class="thesis-item"><small>Contribution 04</small><h3 data-lang-en>Let optimization ability emerge</h3><h3 data-lang-zh>让优化能力自然涌现</h3><p data-lang-en>Self-evolving optimizers are not the direct task target, yet they raise search efficiency and the late-stage performance ceiling.</p><p data-lang-zh>优化能力不是直接任务目标，但优化器自进化提升了搜索效率与后期性能上限。</p></article>
+  </aside>
+
+  <main>
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker" data-lang-en>Motivation</div><div class="kicker" data-lang-zh>动机</div>
+        <div>
+          <h2 data-lang-en>The central object is the ability to keep improving.</h2>
+          <h2 data-lang-zh>核心对象是持续改进的能力。</h2>
+          <p class="lead" data-lang-en>Following the paper, Escher-Loop treats intelligence as recursive improvement: an intelligent system improves task agents while also improving the optimizer that generates future task agents.</p>
+          <p class="lead" data-lang-zh>与论文表述一致，Escher-Loop 将智能视为递归改进：系统一边改进任务智能体，一边改进未来产生任务智能体的优化器。</p>
+        </div>
+      </div>
+      <div class="body-text">
+        <p data-lang-en>The key move is operational rather than philosophical. If an optimizer repeatedly generates task agents with stronger empirical scores, then its optimization capability has improved. The optimizer is no longer an invisible workflow around the agent; it becomes an agent population with scores, competition, and evolution.</p>
+        <p data-lang-zh>关键不是抽象哲学定义，而是可操作定义：如果一个优化器不断生成得分更高的任务智能体，那么它的优化能力就提升了。优化器不再是智能体系统外部不可见的流程，而是一个拥有分数、竞争和演化的智能体种群。</p>
+        <div class="statement" data-lang-en>Task feedback is the bridge: one execution improves the task population and evaluates the optimizer population.</div>
+        <div class="statement" data-lang-zh>任务反馈是桥梁：同一次执行既改进任务种群，也衡量优化器种群。</div>
+      </div>
+    </section>
+
+    <section class="section" id="definition">
+      <div class="section-head">
+        <div class="kicker" data-lang-en>Definition</div><div class="kicker" data-lang-zh>定义</div>
+        <div>
+          <h2 data-lang-en>Optimization ability is defined by the improvements it causes.</h2>
+          <h2 data-lang-zh>优化能力由它造成的改进来定义。</h2>
+          <p class="lead" data-lang-en>Escher-Loop keeps two scored populations: task agents with absolute task scores, and optimizer agents with relative scores induced by the task agents they generate.</p>
+          <p class="lead" data-lang-zh>Escher-Loop 维护两个带分数的种群：任务智能体拥有绝对任务分数，优化器智能体则由其生成的任务智能体诱导出相对分数。</p>
+        </div>
+      </div>
+      <div class="definition-grid">
+        <article class="definition-card">
+          <small data-lang-en>Two scored populations</small>
+          <small data-lang-zh>两个带分数的种群</small>
+          <h3 data-lang-en>Task agents and optimizer agents share the same evolutionary accounting.</h3>
+          <h3 data-lang-zh>任务智能体和优化器智能体共享同一套演化记账方式。</h3>
+          <p data-lang-en>The task population stores executable candidates and task scores; the optimizer population stores optimizer programs or prompts and relative Elo scores.</p>
+          <p data-lang-zh>任务种群保存可执行候选体及任务分数；优化器种群保存优化器程序或提示词及相对 Elo 分数。</p>
+          <div class="equation">\[
+            \mathcal{T}=\{(t_j,s_j^t)\}_{j\in J},\qquad
+            \mathcal{O}=\{(o_i,s_i^o)\}_{i\in I}
+          \]</div>
+        </article>
+        <article class="definition-card">
+          <small data-lang-en>Operational test</small>
+          <small data-lang-zh>操作性检验</small>
+          <h3 data-lang-en>An optimizer improves when its generated task agent improves.</h3>
+          <h3 data-lang-zh>优化器的改进体现在它生成的任务智能体改进上。</h3>
+          <p data-lang-en>Given scored task agents, an optimizer proposes a new task agent. The task function supplies the grounded score.</p>
+          <p data-lang-zh>给定带分数的任务智能体后，优化器提出新的任务智能体，任务函数提供真实分数。</p>
+          <div class="equation">\[
+            t_{\mathrm{new}}=o((t_1,s_1^t),\ldots,(t_n,s_n^t)),
+            \qquad s_{\mathrm{new}}^t=f(t_{\mathrm{new}})
+          \]</div>
+        </article>
+        <article class="definition-card wide">
+          <small data-lang-en>Self-referential step</small>
+          <small data-lang-zh>自指步骤</small>
+          <h3 data-lang-en>The optimizer becomes a target of optimization.</h3>
+          <h3 data-lang-zh>优化器本身成为被优化对象。</h3>
+          <p data-lang-en>Because optimizer agents are represented as editable programs or prompts, a strong optimizer can rewrite the optimizer population itself. This extra self-referential step is what turns optimization logic into an evolving object.</p>
+          <p data-lang-zh>因为优化器智能体也被表示为可编辑的程序或提示词，强优化器可以继续改写优化器种群本身。这个额外的自指步骤让优化逻辑成为可演化对象。</p>
+          <div class="equation">\[
+            o_{\mathrm{new}}=o^{\ast}((o_1,s_1^o),\ldots,(o_m,s_m^o))
+          \]</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="mechanism" class="section">
+      <div class="section-head">
+        <div class="kicker" data-lang-en>Mechanism</div><div class="kicker" data-lang-zh>机制</div>
+        <div>
+          <h2 data-lang-en>One execution creates two feedback signals.</h2>
+          <h2 data-lang-zh>一次执行，两种反馈。</h2>
+        <p class="lead" data-lang-en>The loop samples both populations, generates task agents, reuses task scores for optimizer Elo, then lets optimizers rewrite the optimizer population.</p>
+          <p class="lead" data-lang-zh>闭环先抽样两个种群，再生成任务智能体，复用任务分数更新优化器 Elo，最后让优化器继续改写优化器种群。</p>
+        </div>
+      </div>
+      <div class="mechanism-layout">
+        <div class="phase-rail">
+          <button class="phase is-active" data-phase="sample" type="button"><i>1</i><span><b data-lang-en>Two scored populations</b><b data-lang-zh>两个带分数种群</b><span data-lang-en>Task agents and optimizer agents are both stored with empirical scores.</span><span data-lang-zh>任务智能体与优化器智能体都以“对象 + 分数”的形式维护。</span></span></button>
+          <button class="phase" data-phase="score" type="button"><i>2</i><span><b data-lang-en>Task-agent optimization</b><b data-lang-zh>任务智能体优化</b><span data-lang-en>Optimizers generate task agents; task execution yields absolute scores.</span><span data-lang-zh>优化器生成任务智能体；任务执行给出绝对分数。</span></span></button>
+          <button class="phase" data-phase="elo" type="button"><i>3</i><span><b data-lang-en>Dynamic benchmarking</b><b data-lang-zh>动态基准</b><span data-lang-en>The same task scores become optimizer win-loss evidence almost for free.</span><span data-lang-zh>同一批任务分数几乎免费地成为优化器胜负证据。</span></span></button>
+          <button class="phase" data-phase="self" type="button"><i>4</i><span><b data-lang-en>Self-referential evolution</b><b data-lang-zh>自指进化</b><span data-lang-en>A strong optimizer rewrites the optimizer population itself.</span><span data-lang-zh>优秀优化器继续改写优化器种群本身。</span></span></button>
+        </div>
+        <div class="fig1-stage" id="mechanismStage" data-phase="sample">
+          <div class="fig-image-shell">
+            <div class="fig-image-stack">
+              <img class="fig-stage-frame sample" src="assets/final-paper-figures/fig1-highlight-populations.png" alt="Escher-Loop mechanism with both scored populations highlighted.">
+              <img class="fig-stage-frame score" src="assets/final-paper-figures/fig1-highlight-task.png" alt="Escher-Loop mechanism with task-agent optimization and task execution highlighted.">
+              <img class="fig-stage-frame elo" src="assets/final-paper-figures/fig1-highlight-benchmark.png" alt="Escher-Loop mechanism with dynamic benchmarking and relative optimizer scoring highlighted.">
+              <img class="fig-stage-frame self" src="assets/final-paper-figures/fig1-highlight-self.png" alt="Escher-Loop mechanism with self-referential optimizer evolution highlighted.">
+            </div>
+          </div>
+          <div class="fig-explain"><b id="phaseTitle">Two populations</b><span id="phaseSubtitle">Task agents and optimizer agents are both explicit evolving populations.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="section">
+      <div class="section-head">
+        <div class="kicker" data-lang-en>Evidence</div><div class="kicker" data-lang-zh>实验证据</div>
+        <div>
+          <h2 data-lang-en>Matched-compute runs across three optimization landscapes.</h2>
+          <h2 data-lang-zh>在三个数学优化场景中进行同等计算量实验。</h2>
+          <p class="lead" data-lang-en>Under a 10M equivalent-token budget per task, Escher-Loop pushes past static baselines and avoids reducing the system to one isolated best optimizer.</p>
+          <p class="lead" data-lang-zh>在每个任务 10M equivalent-token 预算下，Escher-Loop 突破静态基线，并且证明完整动态种群不是一个孤立最佳优化器可以替代的。</p>
+        </div>
+      </div>
+      <div class="results-grid">
+        <article class="metric"><small>Kissing Number, D=11</small><strong>0.981</strong><p data-lang-en>Raw score: 582 points. Reference: 593 points.</p><p data-lang-zh>原始分数：582 点。参考值：593 点。</p></article>
+        <article class="metric"><small>Circle Packing, N=26</small><strong>1.000</strong><p data-lang-en>Raw score: 2.6352223118. Reference: 2.6350.</p><p data-lang-zh>原始分数：2.6352223118。参考值：2.6350。</p></article>
+        <article class="metric"><small>Heilbronn Triangle, N=11</small><strong>0.999</strong><p data-lang-en>Raw score: 0.0365253447. Reference: 0.0365298899.</p><p data-lang-zh>原始分数：0.0365253447。参考值：0.0365298899。</p></article>
+      </div>
+      <p class="evidence-note" data-lang-en>All trajectories come from the same experimental batch; the plot is not a post-hoc selection of the best-looking runs. Read these results as matched-budget empirical evidence, not as a claim about the absolute performance ceiling of either Escher-Loop or the static baseline.</p>
+      <p class="evidence-note" data-lang-zh>所有轨迹都来自同一批实验；图中结果不是事后挑选出来的“最好看”运行。这里的结果应被理解为同等预算下的经验证据，而不是对 Escher-Loop 或静态基线绝对性能上限的宣称。</p>
+      <div class="figures">
+        <figure class="figure result-figure"><img src="assets/final-paper-figures/fig2-baseline-vs-escher-transparent.png" alt="Comparison of Escher-Loop and baseline trajectories."><figcaption class="caption"><span data-lang-en>Full Escher-Loop compared with the handcrafted OpenEvolve-style baseline under the same equivalent-token budget.</span><span data-lang-zh>同等 equivalent-token 预算下，完整 Escher-Loop 与手工 OpenEvolve 风格基线对比。</span><span>Matched-compute trajectories</span></figcaption></figure>
+        <figure class="figure result-figure"><img src="assets/final-paper-figures/fig3-single-best-optimizer-transparent.png" alt="Comparison of a single best optimizer and the full loop."><figcaption class="caption"><span data-lang-en>Dynamic evolution continually updates the optimizer population during search, outperforming a frozen single optimizer even when it transfers useful behavior.</span><span data-lang-zh>动态演化会在搜索过程中持续更新优化器种群，因此即使单个演化优化器能迁移有效行为，也无法替代完整闭环。</span><span>Dynamic evolution advantage</span></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker" data-lang-en>What evolves</div><div class="kicker" data-lang-zh>进化内容</div>
+        <div><h2 data-lang-en>Optimizer agents learn search policy, not just better wording.</h2><h2 data-lang-zh>优化器学到的是搜索策略，而不只是更好的措辞。</h2><p class="lead" data-lang-en>Evolved optimizers add diagnostic feedback, adaptive search control, stage-aware prompts, and reference-program mining.</p><p class="lead" data-lang-zh>演化后的优化器引入诊断反馈、自适应搜索控制、阶段感知提示，以及参考程序挖掘。</p></div>
+      </div>
+      <div class="evolution-copy">
+        <div class="feature-list">
+          <div><b data-lang-en>Diagnostic feedback</b><b data-lang-zh>诊断反馈</b><span data-lang-en>Regression, plateau, and low-diversity failures become explicit optimization signals.</span><span data-lang-zh>回退、平台期和低多样性失败成为显式优化信号。</span></div>
+          <div><b data-lang-en>Adaptive search radius</b><b data-lang-zh>自适应搜索半径</b><span data-lang-en>The optimizer can decide when to refine locally and when to mutate architecture.</span><span data-lang-zh>优化器可以决定何时局部精修、何时进行结构变异。</span></div>
+          <div><b data-lang-en>Reference-program mining</b><b data-lang-zh>参考程序挖掘</b><span data-lang-en>Evolution history becomes reusable material for future candidates.</span><span data-lang-zh>演化历史成为后续候选体可复用的材料。</span></div>
+        </div>
+        <figure class="figure code-figure"><img src="assets/final-paper-figures/fig5-evolved-optimizer-code.png" alt="Representative evolved optimizer code snippets."><figcaption class="caption"><span data-lang-en>Representative evolved optimizer code segments show how the search policy changes.</span><span data-lang-zh>代表性优化器代码片段展示搜索策略如何改变。</span><span>Evolved optimizer policy</span></figcaption></figure>
+      </div>
+    </section>
+
+    <section id="authors" class="section">
+      <div class="section-head"><div class="kicker" data-lang-en>Authors</div><div class="kicker" data-lang-zh>作者</div><div><h2 data-lang-en>The team behind Escher-Loop.</h2><h2 data-lang-zh>Escher-Loop 团队。</h2><p class="lead" data-lang-en>Escher-Loop is maintained by the paper authors. For questions about the website, code release, or paper links, contact the authors below.</p><p class="lead" data-lang-zh>Escher-Loop 由论文作者共同维护。关于网站页面、代码发布或论文链接，可通过下方邮箱联系作者。</p></div></div>
+      <div class="author-grid">
+        <article class="author"><b>Ziyang Liu</b><span>Equal contribution</span><span>Shenzhen X-Institute; Soochow University</span><a href="mailto:newzil1225@gmail.com">newzil1225@gmail.com</a></article>
+        <article class="author"><b>Xinyan Guo</b><span>Equal contribution</span><span>Shenzhen X-Institute; HIT Shenzhen</span><a href="mailto:guoxinyan@stu.hitsz.edu.cn">guoxinyan@stu.hitsz.edu.cn</a></article>
+        <article class="author"><b>Xuchen Wei</b><span>Equal contribution</span><span>Shenzhen X-Institute; HIT Shenzhen</span><a href="mailto:weixuchen@stu.hitsz.edu.cn">weixuchen@stu.hitsz.edu.cn</a></article>
+        <article class="author"><b>Han Hao</b><span>Corresponding author</span><span>Tsinghua University</span><a href="mailto:haoh23@mails.tsinghua.edu.cn">haoh23@mails.tsinghua.edu.cn</a></article>
+        <article class="author"><b>Liu Yang</b><span>Corresponding author</span><span>National University of Singapore</span><a href="mailto:yangliu@nus.edu.sg">yangliu@nus.edu.sg</a></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Escher-Loop: Mutual Evolution by Closed-Loop Self-Referential Optimization.</span>
+      <span class="footer-links" data-lang-en><a href="https://arxiv.org/bibtex/2604.23472" target="_blank" rel="noopener">BibTeX citation</a><a href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener">arXiv preprint</a></span>
+      <span class="footer-links" data-lang-zh><a href="https://arxiv.org/bibtex/2604.23472" target="_blank" rel="noopener">BibTeX 引用</a><a href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener">arXiv 预印本</a></span>
+    </div>
+  </footer>
+
+  <script>
+    const phases = ["sample", "score", "elo", "self"];
+    const phaseCopy = {
+      en: {
+        sample: ["Two populations", "Task agents and optimizer agents are both explicit evolving populations with scores."],
+        score: ["Task execution", "The optimizer proposes a task agent; execution gives an absolute task score."],
+        elo: ["Almost-free benchmark", "The same task scores become relative win-loss evidence for optimizer Elo."],
+        self: ["Self-reference", "A strong optimizer rewrites the optimizer population, raising search efficiency and ceiling."]
+      },
+      zh: {
+        sample: ["两个种群", "任务智能体与优化器智能体都是带分数的显式演化种群。"],
+        score: ["任务执行", "优化器提出任务智能体；任务执行给出绝对任务分数。"],
+        elo: ["近乎免费的基准", "同一批任务分数被复用为优化器 Elo 的相对胜负证据。"],
+        self: ["自指进化", "强优化器改写优化器种群，提升搜索效率与迭代上限。"]
+      }
+    };
+    let phaseIndex = 0;
+    const body = document.body;
+    const stage = document.getElementById("mechanismStage");
+    const phaseTitle = document.getElementById("phaseTitle");
+    const phaseSubtitle = document.getElementById("phaseSubtitle");
+    const phaseButtons = [...document.querySelectorAll(".phase")];
+    const formulaCells = [...document.querySelectorAll(".formula")];
+
+    function setPhase(phase, reset = true) {
+      phaseIndex = Math.max(0, phases.indexOf(phase));
+      const lang = body.dataset.lang || "en";
+      stage.dataset.phase = phase;
+      phaseTitle.textContent = phaseCopy[lang][phase][0];
+      phaseSubtitle.textContent = phaseCopy[lang][phase][1];
+      phaseButtons.forEach(b => b.classList.toggle("is-active", b.dataset.phase === phase));
+      formulaCells.forEach(c => c.classList.toggle("is-active", c.dataset.formula === phase));
+      if (reset) restartPhaseTimer();
+    }
+    phaseButtons.forEach(button => button.addEventListener("click", () => setPhase(button.dataset.phase)));
+    let phaseTimer;
+    function restartPhaseTimer() {
+      clearInterval(phaseTimer);
+      phaseTimer = setInterval(() => setPhase(phases[(phaseIndex + 1) % phases.length], false), 2400);
+    }
+    restartPhaseTimer();
+
+    function setLang(lang) {
+      body.dataset.lang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem("escher-blog-lang", lang);
+      setPhase(phases[phaseIndex], false);
+    }
+    document.querySelectorAll("[data-set-lang]").forEach(button => button.addEventListener("click", () => setLang(button.dataset.setLang)));
+    if (localStorage.getItem("escher-blog-lang") === "zh") setLang("zh");
+  </script>
+</body>
+</html>
