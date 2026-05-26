@@ -491,6 +491,98 @@
       font-weight: 650;
     }
 
+    .ablation-panel {
+      margin-top: 36px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 18px 50px rgba(32,28,18,.06);
+      scroll-margin-top: 86px;
+    }
+    .ablation-intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(260px, .95fr);
+      gap: 26px;
+      align-items: end;
+    }
+    .ablation-intro h3 {
+      margin-top: 12px;
+      max-width: 660px;
+      font-size: clamp(24px, 2.4vw, 34px);
+      line-height: 1.08;
+      font-weight: 900;
+    }
+    .ablation-intro p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.58;
+      font-weight: 650;
+    }
+    .ablation-tables {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .ablation-card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .ablation-card h4 {
+      margin: 0;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+    .table-scroll { overflow-x: auto; }
+    .ablation-card table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+    .ablation-card th,
+    .ablation-card td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(16,17,20,.1);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .ablation-card th:first-child,
+    .ablation-card td:first-child {
+      text-align: left;
+      white-space: normal;
+      min-width: 178px;
+    }
+    .ablation-card th {
+      color: #333945;
+      font-weight: 850;
+      background: rgba(245,247,251,.82);
+    }
+    .narrow-label { display: none; }
+    .ablation-card tbody tr:last-child td { border-bottom: 0; }
+    .ablation-card .ours td {
+      border-top: 1.5px dashed rgba(36,88,216,.45);
+      color: var(--cobalt);
+      font-weight: 900;
+      background: rgba(36,88,216,.055);
+    }
+    .ablation-note {
+      margin-top: 18px;
+      color: #414956;
+      font-size: 14px;
+      line-height: 1.62;
+      font-weight: 650;
+    }
+
     .evolution-copy { display: grid; gap: 24px; }
     .feature-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .feature-list div {
@@ -801,6 +893,47 @@
         line-height: 1.54;
         font-weight: 600;
       }
+      .ablation-panel {
+        margin-top: 28px;
+        padding: 18px;
+      }
+      .ablation-intro,
+      .ablation-tables {
+        grid-template-columns: 1fr;
+      }
+      .ablation-intro {
+        gap: 12px;
+      }
+      .ablation-intro h3 {
+        font-size: 22px;
+        line-height: 1.12;
+      }
+      .ablation-intro p,
+      .ablation-note {
+        font-size: 13.5px;
+      }
+      .ablation-card table {
+        min-width: 0;
+        table-layout: fixed;
+        font-size: 11.5px;
+        line-height: 1.18;
+      }
+      .ablation-card th,
+      .ablation-card td {
+        padding: 9px 8px;
+        white-space: normal;
+      }
+      .ablation-card th:first-child,
+      .ablation-card td:first-child {
+        min-width: 0;
+        width: 42%;
+      }
+      .ablation-card th:not(:first-child),
+      .ablation-card td:not(:first-child) {
+        width: 19.333%;
+      }
+      .wide-label { display: none; }
+      .narrow-label { display: inline; }
       .feature-list { gap: 12px; }
       .feature-list div {
         min-height: auto;
@@ -848,6 +981,7 @@
       <a href="#idea"><span data-lang-en>Idea</span><span data-lang-zh>思想</span></a>
       <a href="#mechanism"><span data-lang-en>Mechanism</span><span data-lang-zh>机制</span></a>
       <a href="#results"><span data-lang-en>Results</span><span data-lang-zh>结果</span></a>
+      <a href="#ablations"><span data-lang-en>Ablations</span><span data-lang-zh>消融</span></a>
       <a href="#authors"><span data-lang-en>Authors</span><span data-lang-zh>作者</span></a>
     </div>
     <div class="lang"><button type="button" data-set-lang="en">EN</button><button type="button" data-set-lang="zh">中</button></div>
@@ -868,14 +1002,16 @@
         <p class="hero-copy" data-lang-zh>Escher-Loop 把优化能力从固定的人类先验，变成一个可演化的优化器种群。系统仍然只依赖真实任务反馈：每一次任务智能体得分都会被复用来衡量优化器，几乎是 for free。</p>
         <div class="hero-meta">
           <span>Ziyang Liu, Xinyan Guo, Xuchen Wei, Han Hao, Liu Yang</span>
-          <span data-lang-en>Shenzhen X-Institute, Soochow University, HIT Shenzhen, Tsinghua University, NUS</span>
-          <span data-lang-zh>深圳零一学院、苏州大学、哈工大深圳、清华大学、新加坡国立大学</span>
+          <span data-lang-en>Shenzhen X-Institute, Soochow University, Shenzhen Loop Area Institute, Tsinghua University, NUS</span>
+          <span data-lang-zh>深圳零一学院、苏州大学、Shenzhen Loop Area Institute、清华大学、新加坡国立大学</span>
           <span data-lang-en>Contact: newzil1225@gmail.com</span>
           <span data-lang-zh>联系邮箱：newzil1225@gmail.com</span>
         </div>
         <div class="actions">
-          <a class="btn" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-en>arXiv preprint</a>
-          <a class="btn" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-zh>arXiv 预印本</a>
+          <a class="btn" href="assets/papers/Escher-Loop_arxiv_latest.pdf" target="_blank" rel="noopener" data-lang-en>Latest PDF</a>
+          <a class="btn" href="assets/papers/Escher-Loop_arxiv_latest.pdf" target="_blank" rel="noopener" data-lang-zh>最新 PDF</a>
+          <a class="btn secondary" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-en>arXiv preprint</a>
+          <a class="btn secondary" href="https://arxiv.org/abs/2604.23472" target="_blank" rel="noopener" data-lang-zh>arXiv 预印本</a>
           <a class="btn secondary" href="https://github.com/scaling-group/escher-loop" target="_blank" rel="noopener" data-lang-en>Open source code</a>
           <a class="btn secondary" href="https://github.com/scaling-group/escher-loop" target="_blank" rel="noopener" data-lang-zh>打开代码仓库</a>
         </div>
@@ -1024,6 +1160,54 @@
         <figure class="figure result-figure"><img src="assets/final-paper-figures/fig2-baseline-vs-escher-transparent.png" alt="Comparison of Escher-Loop and baseline trajectories."><figcaption class="caption"><span data-lang-en>Full Escher-Loop compared with the handcrafted OpenEvolve-style baseline under the same equivalent-token budget.</span><span data-lang-zh>同等 equivalent-token 预算下，完整 Escher-Loop 与手工 OpenEvolve 风格基线对比。</span><span>Matched-compute trajectories</span></figcaption></figure>
         <figure class="figure result-figure"><img src="assets/final-paper-figures/fig3-single-best-optimizer-transparent.png" alt="Comparison of a single best optimizer and the full loop."><figcaption class="caption"><span data-lang-en>Dynamic evolution continually updates the optimizer population during search, outperforming a frozen single optimizer even when it transfers useful behavior.</span><span data-lang-zh>动态演化会在搜索过程中持续更新优化器种群，因此即使单个演化优化器能迁移有效行为，也无法替代完整闭环。</span><span>Dynamic evolution advantage</span></figcaption></figure>
       </div>
+      <div class="ablation-panel" id="ablations">
+        <div class="ablation-intro">
+          <div>
+            <div class="kicker" data-lang-en>Mechanism ablations</div>
+            <div class="kicker" data-lang-zh>机制消融</div>
+            <h3 data-lang-en>Dynamic selection matters beyond simply keeping more optimizers.</h3>
+            <h3 data-lang-zh>关键不只是保留更多优化器，而是要有动态选择压力。</h3>
+          </div>
+          <p data-lang-en>Each ablation is repeated three times under the same 10M equivalent-token budget. Best@10M and AUC@10M are mean values across runs; AUC Std summarizes run-to-run stability.</p>
+          <p data-lang-zh>每组消融实验在相同 10M equivalent-token 预算下重复三次。Best@10M 与 AUC@10M 为三次运行均值；AUC Std 反映跨运行稳定性。</p>
+        </div>
+        <div class="ablation-tables">
+          <article class="ablation-card">
+            <h4>Kissing Number</h4>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Method</th><th><span class="wide-label">Best@10M ↑</span><span class="narrow-label">Best<br>@10M ↑</span></th><th><span class="wide-label">AUC@10M ↑</span><span class="narrow-label">AUC<br>@10M ↑</span></th><th><span class="wide-label">AUC Std ↓</span><span class="narrow-label">AUC Std<br>↓</span></th></tr></thead>
+                <tbody>
+                  <tr><td>Baseline</td><td>0.786</td><td>0.674</td><td>0.067</td></tr>
+                  <tr><td>Single Best Optimizer</td><td>0.925</td><td>0.738</td><td>0.048</td></tr>
+                  <tr><td>Static-50 Optimizer Pool</td><td>0.568</td><td>0.408</td><td>0.181</td></tr>
+                  <tr><td>Fixed Elo = 1200</td><td>0.811</td><td>0.772</td><td>0.074</td></tr>
+                  <tr><td>Random Elo Update</td><td>0.739</td><td>0.721</td><td>0.016</td></tr>
+                  <tr class="ours"><td>Escher-Loop (ours)</td><td>0.963</td><td>0.876</td><td>0.032</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+          <article class="ablation-card">
+            <h4>Circle Packing</h4>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Method</th><th><span class="wide-label">Best@10M ↑</span><span class="narrow-label">Best<br>@10M ↑</span></th><th><span class="wide-label">AUC@10M ↑</span><span class="narrow-label">AUC<br>@10M ↑</span></th><th><span class="wide-label">AUC Std ↓</span><span class="narrow-label">AUC Std<br>↓</span></th></tr></thead>
+                <tbody>
+                  <tr><td>Baseline</td><td>0.961</td><td>0.956</td><td>0.008</td></tr>
+                  <tr><td>Single Best Optimizer</td><td>0.973</td><td>0.962</td><td>0.007</td></tr>
+                  <tr><td>Static-50 Optimizer Pool</td><td>0.988</td><td>0.966</td><td>0.009</td></tr>
+                  <tr><td>Fixed Elo = 1200</td><td>0.969</td><td>0.959</td><td>0.003</td></tr>
+                  <tr><td>Random Elo Update</td><td>0.964</td><td>0.961</td><td>0.001</td></tr>
+                  <tr class="ours"><td>Escher-Loop (ours)</td><td>0.987</td><td>0.966</td><td>0.009</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+        <p class="ablation-note" data-lang-en>On KN, breaking the grounded Elo signal sharply reduces search efficiency. On CP, all methods are closer because the baseline is already strong; the ablations remain consistent with the core mechanism story because optimizer diversity alone does not reproduce the full closed-loop advantage.</p>
+        <p class="ablation-note" data-lang-zh>在 KN 上，破坏有真实任务反馈支撑的 Elo 信号会明显降低搜索效率。在 CP 上，由于基线已经较强，各方法更接近；但结果仍然说明，仅有优化器多样性并不能完全替代闭环中的动态选择与自指优化。</p>
+      </div>
     </section>
 
     <section class="section">
@@ -1045,8 +1229,8 @@
       <div class="section-head"><div class="kicker" data-lang-en>Authors</div><div class="kicker" data-lang-zh>作者</div><div><h2 data-lang-en>The team behind Escher-Loop.</h2><h2 data-lang-zh>Escher-Loop 团队。</h2><p class="lead" data-lang-en>Escher-Loop is maintained by the paper authors. For questions about the website, code release, or paper links, contact the authors below.</p><p class="lead" data-lang-zh>Escher-Loop 由论文作者共同维护。关于网站页面、代码发布或论文链接，可通过下方邮箱联系作者。</p></div></div>
       <div class="author-grid">
         <article class="author"><b>Ziyang Liu</b><span>Equal contribution</span><span>Shenzhen X-Institute; Soochow University</span><a href="mailto:newzil1225@gmail.com">newzil1225@gmail.com</a></article>
-        <article class="author"><b>Xinyan Guo</b><span>Equal contribution</span><span>Shenzhen X-Institute; HIT Shenzhen</span><a href="mailto:guoxinyan@stu.hitsz.edu.cn">guoxinyan@stu.hitsz.edu.cn</a></article>
-        <article class="author"><b>Xuchen Wei</b><span>Equal contribution</span><span>Shenzhen X-Institute; HIT Shenzhen</span><a href="mailto:weixuchen@stu.hitsz.edu.cn">weixuchen@stu.hitsz.edu.cn</a></article>
+        <article class="author"><b>Xinyan Guo</b><span>Equal contribution</span><span>Shenzhen X-Institute; Shenzhen Loop Area Institute</span><a href="mailto:guoxinyan@mails.x-institute.edu.cn">guoxinyan@mails.x-institute.edu.cn</a></article>
+        <article class="author"><b>Xuchen Wei</b><span>Equal contribution</span><span>Shenzhen X-Institute</span><a href="mailto:weixuchen@mails.x-institute.edu.cn">weixuchen@mails.x-institute.edu.cn</a></article>
         <article class="author"><b>Han Hao</b><span>Corresponding author</span><span>Tsinghua University</span><a href="mailto:haoh23@mails.tsinghua.edu.cn">haoh23@mails.tsinghua.edu.cn</a></article>
         <article class="author"><b>Liu Yang</b><span>Corresponding author</span><span>National University of Singapore</span><a href="mailto:yangliu@nus.edu.sg">yangliu@nus.edu.sg</a></article>
       </div>
