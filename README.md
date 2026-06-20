@@ -17,7 +17,7 @@
 ## 🔬 学术成果
 
 - 在CCF-A/B类会议发表论文
-- 公开 arXiv 预印本：Escher-Loop
+- Escher-Loop 已被 ICML 2026 AI4Math Workshop 接收为 Poster，并已公开 arXiv 预印本
 - 获得多项专利授权
 - 多个创新项目负责人
 - 数学建模竞赛获奖

@@ -56,7 +56,7 @@
 
 * 项目内容：探索基于自指迭代与协同进化机制的新型智能体系统范式，提升智能体系统的通用性、自适应性和可扩展性
 * 技术贡献：在 AlphaEvolve 启发的进化框架基础上引入自指进化机制，使系统能够在任务求解与优化器改进之间形成闭环
-* 阶段成果：相关论文已作为 arXiv 预印本公开
+* 阶段成果：相关论文已被 ICML 2026 AI4Math Workshop 接收为 Poster，并已作为 arXiv 预印本公开
 
 ### 大学生创新创业项目：心芯相依-针对留守儿童的安全型情感陪伴智能系统（项目负责人，2024.06-2024.12）
 
@@ -65,7 +65,7 @@
 
 ## 论文
 
-1. arXiv 2026: "Escher-Loop: Mutual Evolution by Closed-Loop Self-Referential Optimization" (第一作者) ([点击此处查看](https://arxiv.org/abs/2604.23472))
+1. ICML 2026（Workshop）: "Escher-Loop: Mutual Evolution by Closed-Loop Self-Referential Optimization" (第一作者，Poster) ([点击此处查看](https://arxiv.org/abs/2604.23472))
 2. ICME 2025（Oral）: "FSRF: Factorization-guided Semantic Recovery for Incomplete Multimodal Sentiment Analysis" (CCF-B，第一作者) ([点击此处查看](phb/ICME_2025_FSRF__Factorization_guided_Semantic_Recovery_for_Incomplete_Multimodal_Sentiment_Analysis.pdf))
 3. CVPR 2025: "MCCD: Multi-Agent Collaboration-based Compositional Diffusion for Complex Text-to-Image Generation" (CCF-A，第二作者)
 4. ICML 2025（Workshop）: "MERIT:Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation" (CCF-A,通讯作者) ([点击此处查看](phb/MERIT：Multimodal Emotion Recognition via RL-Enhanced Test-Time Adaptation.pdf))
@@ -86,6 +86,7 @@
 <h2>竞赛获奖</h2>
 
 * 2025年第七届码蹄杯程序设计大赛：金奖（江苏省第五名) ([点击查看证书](竞赛/2025年码蹄杯本科院校赛道省赛获奖证书.jpeg))
+* 2026年世界量化大赛（International Quant Championship, IQC）：金牌
 * 2025年第二十一届百度之星程序设计大赛初赛：金奖 ([点击查看证书](竞赛/2025年百度之星初赛人才专项赛道获奖证书.pdf))
 * 2025年美国大学生数学建模竞赛：M奖（一等奖）（队长）([点击查看证书](竞赛/2025美赛获奖证明.pdf))
 * 2025年蓝桥杯Python A组：江苏省二等奖([点击查看证书](竞赛/2025蓝桥杯获奖证明.png))
