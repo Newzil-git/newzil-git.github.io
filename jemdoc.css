@@ -20,34 +20,34 @@ table#tlayout {
     border-collapse: separate;
     background: white;
     width: 100%;
-    max-width: 1200px;
+    max-width: min(1580px, calc(100vw - 96px));
     margin: 0 auto;
 }
 
 #layout-menu {
     background: #f8f9fa;
     border: 1px solid #e9ecef;
-    padding: 15px 10px;
+    padding: 18px 12px;
     font-size: 0.9em;
-    width: 160px;
+    width: 190px;
     text-align: left;
     vertical-align: top;
     border-radius: 8px;
 }
 
 #layout-content {
-    padding: 0 25px 0 35px;
+    padding: 0 36px 0 48px;
     border: none;
     background: white;
     text-align: left;
     vertical-align: top;
-    width: calc(100% - 160px);
+    width: calc(100% - 190px);
 }
 
 /* Language Switcher */
 .language-switcher {
     text-align: right;
-    padding: 15px 20px;
+    padding: 15px max(20px, calc((100vw - 1580px) / 2 + 20px));
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
 }
@@ -328,6 +328,7 @@ a:hover {
 @media (max-width: 768px) {
     table#tlayout {
         width: 100%;
+        max-width: none;
     }
     
     #layout-menu {
